@@ -38,17 +38,16 @@ int main(int argc, char *argv[] ) {
     while ( true ) {
 
 	  ServerSocket new_sock;
-	  server.accept ( new_sock );
+	  server.accept(new_sock);
 
 	  try {
-	    while ( true ) {
+	    while (true) {
 		  std::string data;
 		  new_sock >> data;
 		  new_sock << data;
 	    }
 	  }
 	  catch ( SocketException& ) {}
-
 	}
   }
   catch ( SocketException& e ) {

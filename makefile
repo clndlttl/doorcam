@@ -3,7 +3,7 @@ CC=/usr/bin/g++
 
 SRC_DIR=./src
 
-SRVR_SRCS=$(SRC_DIR)/main.cpp \
+SRVR_SRCS=$(SRC_DIR)/main_server.cpp \
           $(SRC_DIR)/socket.cpp \
           $(SRC_DIR)/server.cpp
 

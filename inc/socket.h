@@ -1,5 +1,8 @@
-// Definition of the Socket class
+//////////////////////////////////////////
+//
+// DOORCAM
 // socket.h
+//
 
 #pragma once
 
@@ -23,22 +26,24 @@ class Socket {
 
  public:
   Socket();
-  virtual ~Socket();
+  virtual ~Socket();  // making the destructor virtual guarantees that
+                      // derived classes will be destroyed via a base
+                      // class pointer
 
   // Server initialization
   bool create();
-  bool bind ( const int port );
+  bool bind(const int port);
   bool listen() const;
-  bool accept ( Socket& ) const;
+  bool accept(Socket&) const;
 
   // Client initialization
-  bool connect ( const std::string host, const int port );
+  bool connect(const std::string host, const int port);
 
   // Data Transimission
-  bool send ( const std::string ) const;
-  int recv ( std::string& ) const;
+  bool send(const std::string) const;
+  int recv(std::string&) const;
 
-  void set_non_blocking ( const bool );
+  void set_non_blocking(const bool);
 
   bool is_valid() const { return m_sock != -1; }
 };
