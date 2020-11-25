@@ -3,9 +3,13 @@ CC=/usr/bin/g++
 
 SRC_DIR=./src
 
-SRCS=$(SRC_DIR)/main.cpp \
-     $(SRC_DIR)/socket.cpp \
-     $(SRC_DIR)/server.cpp
+SRVR_SRCS=$(SRC_DIR)/main.cpp \
+          $(SRC_DIR)/socket.cpp \
+          $(SRC_DIR)/server.cpp
+
+CLNT_SRCS=$(SRC_DIR)/main_client.cpp \
+          $(SRC_DIR)/socket.cpp \
+          $(SRC_DIR)/client.cpp
 
 INC_DIR=./inc
 
@@ -23,14 +27,14 @@ CVLIBS= -lopencv_core \
 	-lopencv_ml \
 	-lopencv_objdetect \
 	-lopencv_photo \
-	-lopencv_shape \
 	-lopencv_stitching \
-	-lopencv_superres \
 	-lopencv_videoio \
 	-lopencv_video \
-	-lopencv_videostab
 
 CFLAGS= -std=c++11 -I$(INC_DIR) -I$(CV_INC_DIR) -L$(CV_LINK_DIR) $(CVLIBS)
 
-doorcam: $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -o doorcam
+doorcam_server: $(SRVR_SRCS)
+	$(CC) $(SRVR_SRCS) $(CFLAGS) -o doorcam_server
+
+doorcam_client: $(CLNT_SRCS)
+	$(CC) $(CLNT_SRCS) $(CFLAGS) -o doorcam_client
