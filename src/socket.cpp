@@ -125,7 +125,7 @@ int Socket::recv(std::string& s) const {
 
 int Socket::recv(cv::Mat& s) const {
 
-  int status = ::recv(m_sock, s.data, s.rows * s.cols, 0);
+  int status = ::recv(m_sock, s.data, s.rows * s.cols, MSG_WAITALL);
 
   if (status == -1) {
     std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";

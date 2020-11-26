@@ -18,15 +18,17 @@ int main ( int argc, char** argv ) {
   try {
     ClientSocket client_socket ( argv[1], 30000 );
 
-    // std::string reply;
-    cv::Mat gray(240, 320, CV_8UC1, 0); 
+    cv::namedWindow("door cam", 1);
+    cv::Mat gray(240, 320, CV_8UC1, cv::Scalar(0)); 
 
     try {
-      // client_socket << argv[2];
-      // client_socket >> reply;
-      client_socket >> gray;
-      cv::imwrite("image.jpg", gray);
-
+      while (true) {
+        client_socket >> gray;
+	std::cout << "attempt to imshow" << std::endl;
+	cv::imshow("door cam", gray);
+	cv::waitKey(10);
+        // cv::imwrite("image.jpg", gray);
+      }
     } catch ( SocketException& ) {}
 
     std::cout << "saved image.jpg!" << std::endl;

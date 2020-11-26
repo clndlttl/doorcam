@@ -51,7 +51,7 @@ int main(int argc, char *argv[] ) {
           cv::cvtColor(frame, gray, CV_BGR2GRAY);
 
           new_sock << gray;
-          this_thread::sleep_for(chrono::milliseconds(1000));
+          this_thread::sleep_for(chrono::milliseconds(100));
   
           // imwrite("image.jpg", gray);
 	    }

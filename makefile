@@ -13,8 +13,6 @@ CLNT_SRCS=$(SRC_DIR)/main_client.cpp \
 
 INC_DIR=./inc
 
-CV_INC_DIR=/usr/local/opencv/include/
-
 CV_LINK_DIR=/usr/local/lib/opencv
 
 CVLIBS= -lopencv_core \
@@ -31,7 +29,7 @@ CVLIBS= -lopencv_core \
 	-lopencv_videoio \
 	-lopencv_video \
 
-CFLAGS= -std=c++11 -I$(INC_DIR) -I$(CV_INC_DIR) -L$(CV_LINK_DIR) $(CVLIBS)
+CFLAGS= -std=c++11 -I$(INC_DIR) -L$(CV_LINK_DIR) $(CVLIBS)
 
 doorcam_server: $(SRVR_SRCS)
 	$(CC) $(SRVR_SRCS) $(CFLAGS) -o doorcam_server
