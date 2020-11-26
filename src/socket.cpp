@@ -92,6 +92,17 @@ bool Socket::send(const std::string s) const {
   }
 }
 
+
+bool Socket::send(const cv::Mat& img) const {
+  int status = ::send(m_sock, img.data, img.rows * img.cols, MSG_NOSIGNAL);
+  if ( status == -1 ) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+
 int Socket::recv(std::string& s) const {
   char buf[MAXRECV + 1];
 
@@ -108,6 +119,20 @@ int Socket::recv(std::string& s) const {
     return 0;
   } else {
     s = buf;
+    return status;
+  }
+}
+
+int Socket::recv(cv::Mat& s) const {
+
+  int status = ::recv(m_sock, s.data, s.rows * s.cols, 0);
+
+  if (status == -1) {
+    std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";
+    return 0;
+  } else if ( status == 0 ) {
+    return 0;
+  } else {
     return status;
   }
 }

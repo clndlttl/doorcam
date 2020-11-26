@@ -1,7 +1,7 @@
 /////////////////////////////////////////
 //
 // DOORCAM
-// main.cpp
+// main_server.cpp
 //
 
 #include <iostream>
@@ -12,15 +12,14 @@
 #include <server.h>
 #include <SocketException.h>
 
-using namespace cv;
 using namespace std;
 
 int main(int argc, char *argv[] ) {
 
-  VideoCapture* ptrCam;
+  cv::VideoCapture* ptrCam;
   do {
     cout << "attempt to open cam" << endl;
-    ptrCam = new VideoCapture(0);
+    ptrCam = new cv::VideoCapture(0);
     this_thread::sleep_for(chrono::milliseconds(1000));
   } while (!ptrCam->isOpened());
 
@@ -42,9 +41,19 @@ int main(int argc, char *argv[] ) {
 
 	  try {
 	    while (true) {
-		  std::string data;
-		  new_sock >> data;
-		  new_sock << data;
+		  // std::string data;
+		  // new_sock >> data;
+		  // new_sock << data;
+
+          cv::Mat frame, gray;
+
+          *ptrCam >> frame;
+          cv::cvtColor(frame, gray, CV_BGR2GRAY);
+
+          new_sock << gray;
+          this_thread::sleep_for(chrono::milliseconds(1000));
+  
+          // imwrite("image.jpg", gray);
 	    }
 	  }
 	  catch ( SocketException& ) {}
@@ -53,16 +62,6 @@ int main(int argc, char *argv[] ) {
   catch ( SocketException& e ) {
       std::cout << "Exception was caught:" << e.description() << "\nExiting.\n";
   }
-
-
-
-  Mat frame, gray;
-
-  *ptrCam >> frame;
-  cvtColor(frame, gray, CV_BGR2GRAY);
-
-  imwrite("image.jpg", gray);
-  cout << "wrote image.jpg" << endl;
 
   ptrCam->release();
   return 0;

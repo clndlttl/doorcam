@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include <opencv2/opencv.hpp>
+
 const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 5;
 const int MAXRECV = 500;
@@ -41,7 +43,9 @@ class Socket {
 
   // Data Transimission
   bool send(const std::string) const;
+  bool send(const cv::Mat&) const;
   int recv(std::string&) const;
+  int recv(cv::Mat&) const;
 
   void set_non_blocking(const bool);
 

@@ -40,6 +40,15 @@ const ServerSocket& ServerSocket::operator << (const std::string& s) const {
 }
 
 
+const ServerSocket& ServerSocket::operator << (const cv::Mat& img) const {
+  if ( ! Socket::send ( img ) ) {
+    throw SocketException ("Could not write to socket.");
+  }
+
+  return *this;
+}
+
+
 const ServerSocket& ServerSocket::operator >> (std::string& s) const {
   if ( ! Socket::recv(s) ) {
     throw SocketException ("Could not read from socket.");
