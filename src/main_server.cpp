@@ -26,8 +26,8 @@ int main(int argc, char *argv[] ) {
   int imgWidth = 320;
   int imgHeight = 240;
 
-  ptrCam->set(CV_CAP_PROP_FRAME_WIDTH, imgWidth);
-  ptrCam->set(CV_CAP_PROP_FRAME_HEIGHT, imgHeight);
+  ptrCam->set(cv::CAP_PROP_FRAME_WIDTH, imgWidth);
+  ptrCam->set(cv::CAP_PROP_FRAME_HEIGHT, imgHeight);
 
   // open a server socket that waits for a client
   try {
@@ -48,7 +48,7 @@ int main(int argc, char *argv[] ) {
           cv::Mat frame, gray;
 
           *ptrCam >> frame;
-          cv::cvtColor(frame, gray, CV_BGR2GRAY);
+          cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
           new_sock << gray;
           this_thread::sleep_for(chrono::milliseconds(100));

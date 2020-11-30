@@ -4,8 +4,8 @@
 // server.cpp
 //
 
-#include "server.h"
-#include "SocketException.h"
+#include <server.h>
+#include <SocketException.h>
 
 
 ServerSocket::ServerSocket(int port) {

@@ -4,8 +4,8 @@
 // main_client.cpp
 //
 
-#include "client.h"
-#include "SocketException.h"
+#include <client.h>
+#include <SocketException.h>
 #include <iostream>
 #include <string>
 
