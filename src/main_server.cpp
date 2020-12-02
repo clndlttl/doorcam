@@ -5,6 +5,7 @@
 //
 
 #include <iostream>
+#include <string>
 #include <thread>
 #include <chrono>
 #include <opencv2/opencv.hpp>
@@ -41,9 +42,6 @@ int main(int argc, char *argv[] ) {
 
 	  try {
 	    while (true) {
-		  // std::string data;
-		  // new_sock >> data;
-		  // new_sock << data;
 
           cv::Mat frame, gray;
 
