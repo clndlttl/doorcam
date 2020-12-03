@@ -1,0 +1,12 @@
+[Unit]
+Description=run the doorcam server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/doorcam_server
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target
+

@@ -3,19 +3,19 @@
 #include <fstream>
 
 int main(int argc, char** argv) {
-  // temp: test python
   std::string filename, funcname;
 
-  // read in doorcam_config.json
-  // need to check for drive on sda1,
-  // if it's there, try reading .json file
-  filename = "getconfig";
+  // looks for a thumbdrive, if it's there,
+  // copy config file to /media/doorcam_config/doorcam_config.json
+  filename = "doorcam_getconfig";
   funcname = "copyConfigFile";
   callPythonFunc(filename, funcname);
   
-  // then check for network connectivity (python)
-  // should python do the drive read too?
-  // if no connection, make it with creds in .json
+  // check for network connectivity, if not connected,
+  // use credentials in config file to make one
+  filename = "doorcam_getwifi";
+  funcname = "checkMakeConnection";
+  // callPythonFunc(filename, funcname);
 }
 
 

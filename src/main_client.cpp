@@ -24,14 +24,13 @@ int main ( int argc, char** argv ) {
     try {
       while (true) {
         client_socket >> gray;
-	std::cout << "attempt to imshow" << std::endl;
-	cv::imshow("door cam", gray);
-	cv::waitKey(10);
+	    cv::imshow("door cam", gray);
+	    cv::waitKey(10);
         // cv::imwrite("image.jpg", gray);
       }
     } catch ( SocketException& ) {}
 
-    std::cout << "saved image.jpg!" << std::endl;
+    // std::cout << "saved image.jpg!" << std::endl;
 
   } catch ( SocketException& e ) {
     std::cout << "Exception was caught:" << e.description() << "\n";
