@@ -74,7 +74,7 @@ def connect():
         subprocess.Popen(["wpa_cli", "-i", "wlan0", "reconfigure"])
        
     # if the external drive is present, give it our local IP address
-    if ( doorcam_getconfig.inferDiskname('/dev') ):
+    if ( inferDiskname('/dev') ):
         ip = subprocess.check_output(['hostname','-I']).decode('utf-8').split()[0]
         cfg['ip'] = ip
         with open('/media/doorcam_mount/doorcam_config.json', 'w') as outfile:
