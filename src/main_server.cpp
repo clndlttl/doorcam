@@ -12,10 +12,17 @@
 
 #include <server.h>
 #include <SocketException.h>
+#include <pyfunc.h>
 
 using namespace std;
 
 int main(int argc, char *argv[] ) {
+  std::string filename, funcname;
+
+  // initialize via python call
+  filename = "doorcam_init";
+  funcname = "configAndConnect";
+  callPythonFunc(filename, funcname);
 
   cv::VideoCapture* ptrCam;
   do {
