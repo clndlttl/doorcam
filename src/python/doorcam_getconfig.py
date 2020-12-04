@@ -1,6 +1,5 @@
 # this file must be copied into /usr/lib/python3
 
-
 import os
 
 CFG = 'doorcam_config.json'
@@ -29,7 +28,7 @@ def readConfig():
         os.mkdir(SAVE_CFG)
     os.system('cp ' + MNT + '/' + CFG + ' ' + SAVE_CFG)
 
-def copyConfigFile():
+def copyfile():
     device_name = inferDiskname('/dev')
     if (device_name):
         mountDisk(device_name)
@@ -37,4 +36,4 @@ def copyConfigFile():
             readConfig()
 
 if __name__ == '__main__':
-    copyConfigFile()
+    copyfile()
