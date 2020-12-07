@@ -54,18 +54,51 @@ void Camera::runAsServer() {
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
   
 	    }
-	  }
-	  catch ( SocketException& e ) {
+	  } catch ( SocketException& e ) {
         std::cout << "client lost: " << e.description() << std::endl;
       }
 	}
-  }
-  catch ( SocketException& e ) {
-      std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
+  } catch ( SocketException& e ) {
+    std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
   }
 }
 
-
+/*
+ *  Motion Detector mode
+ *  
+ *  Take an image once every 5 seconds, compare to previous image
+ *  If the delta exceeds a threshold, begin video capture and save
+ */
 void Camera::runAsMotionDetector() {
-  std::cout << "motion detector not yet implemented, exiting" << std::endl;
+  try {
+
+    bool firsttime = true;
+    cv::Mat previous;
+    int diff_power = 0;
+
+    while (diff_power < M_DIFF_THRESH) {
+      cv::Mat frame, gray;
+      cv::Mat diff(m_imgHeight, m_imgWidth, CV_32FC1, cv::Scalar(0)); 
+      cv::Mat square(m_imgHeight, m_imgWidth, CV_32FC1);      
+
+      *m_ptrCam >> frame;
+      cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+
+      if (!firsttime) {
+        diff = gray - previous;
+      } else {
+        firsttime = false;
+      }
+
+      previous = gray;
+
+      cv::multiply(diff, diff, square);
+      diff_power = cv::sum( square )[0];
+      std::cout << "diff_power = " << diff_power << std::endl;
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+  } catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }    
 }

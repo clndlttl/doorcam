@@ -1,4 +1,5 @@
 {
 	"ssid" : "EnterYourWiFiNetworkNameHere",
-	"psk"  : "EnterYourWiFiPasswordHere"
+	"psk"  : "EnterYourWiFiPasswordHere",
+	"mode" : "motion"
 }
