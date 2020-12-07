@@ -16,6 +16,7 @@ target_include_directories(
   ${CMAKE_SOURCE_DIR}/src/inc
   ${OpenCV_INCLUDE_DIRS}
   /usr/include/python3.4
+  /usr/include/boost/property_tree
 )
 target_link_libraries(
   doorcam_server

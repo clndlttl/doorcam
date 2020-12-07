@@ -10,6 +10,9 @@
 #include <chrono>
 #include <opencv2/opencv.hpp>
 
+#include <ptree.hpp>
+#include <json_parser.hpp>
+
 #include <server.h>
 #include <SocketException.h>
 #include <pyfunc.h>
@@ -23,6 +26,13 @@ int main(int argc, char *argv[] ) {
   filename = "doorcam_init";
   funcname = "configAndConnect";
   callPythonFunc(filename, funcname);
+
+  // read config file
+  boost::property_tree::ptree cfg;
+  boost::property_tree::json_parser::read_json(
+    "/media/doorcam_config/doorcam_config.json",
+    cfg
+  ); 
 
   cv::VideoCapture* ptrCam;
   do {
@@ -45,7 +55,9 @@ int main(int argc, char *argv[] ) {
     while ( true ) {
 
 	  ServerSocket new_sock;
+      std::cout << "wait for client" << std::endl;
 	  server.accept(new_sock);
+      std::cout << "found client" << std::endl;
 
 	  try {
 	    while (true) {
@@ -58,14 +70,15 @@ int main(int argc, char *argv[] ) {
           new_sock << gray;
           this_thread::sleep_for(chrono::milliseconds(100));
   
-          // imwrite("image.jpg", gray);
 	    }
 	  }
-	  catch ( SocketException& ) {}
+	  catch ( SocketException& e ) {
+        std::cout << "client lost: " << e.description() << std::endl;
+      }
 	}
   }
   catch ( SocketException& e ) {
-      std::cout << "Exception was caught:" << e.description() << "\nExiting.\n";
+      std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
   }
 
   ptrCam->release();
