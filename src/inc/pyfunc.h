@@ -1,3 +1,1 @@
-#include <string>
-
-void callPythonFunc(const std::string& file, const std::string& func);
+void callPythonFunc(const char* file, const char* func);

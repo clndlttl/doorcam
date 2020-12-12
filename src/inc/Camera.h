@@ -18,10 +18,11 @@ class Camera {
   int m_imgWidth;
   int m_imgHeight;
   std::string m_mode;
+  float m_fps;
+  int m_fT_ms;
 
   std::vector<cv::Mat> m_frames;
-  int m_writePtr;
-  int m_readPtr;
+  int m_framePtr;
 
   void writeToCircBuf(const cv::Mat& img);
   const cv::Mat& readFromCircBuf();

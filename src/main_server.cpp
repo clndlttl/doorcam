@@ -12,12 +12,9 @@
 #include <Camera.h>
 
 int main() {
-  std::string filename, funcname;
 
-  // initialize via python call
-  filename = "doorcam_init";
-  funcname = "configAndConnect";
-  callPythonFunc(filename, funcname);
+  // initialize via python call: filename, function
+  callPythonFunc("doorcam_init", "configAndConnect");
 
   // read config file
   boost::property_tree::ptree cfg;
