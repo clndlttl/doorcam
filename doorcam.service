@@ -1,5 +1,5 @@
 [Unit]
-Description=run the doorcam server
+Description=doorcam server
 After=network.target
 
 [Service]

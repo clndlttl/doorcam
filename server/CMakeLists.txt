@@ -12,15 +12,25 @@ add_executable(
 find_package(OpenCV REQUIRED COMPONENTS
         core imgproc highgui videoio)
 
+# ATTN: /usr/include/python3 is a symbolic link that you
+# must create to point at /usr/include/python3.X
 target_include_directories(
   doorcam_server PUBLIC
   ${CMAKE_SOURCE_DIR}/src/inc
   ${OpenCV_INCLUDE_DIRS}
-  /usr/include/python3.4
+  /usr/include/python3
   /usr/include/boost/property_tree
 )
+
+# ATTN: /usr/lib/libpython3 is a symbolic link that you
+# must create to point at libpython3.Xm.so, wherever
+# it may be
 target_link_libraries(
   doorcam_server
   ${OpenCV_LIBS}
-  "/usr/lib/arm-linux-gnueabihf/libpython3.4m.so"
+  "/usr/lib/libpython3"
 )
+
+install(TARGETS doorcam_server
+        DESTINATION ../sbin)
+

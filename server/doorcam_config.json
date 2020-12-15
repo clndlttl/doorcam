@@ -1,5 +1,8 @@
 {
-	"ssid" : "EnterYourWiFiNetworkNameHere",
-	"psk"  : "EnterYourWiFiPasswordHere",
-	"mode" : "motion"
+	"ssid" : "YourWiFiNetworkName",
+	"psk"  : "YourWiFiPassword",
+	"mode" : "motion",
+	"fps"  : "10",
+    "imgWidth"  : "320",
+    "imgHeight" : "240"
 }

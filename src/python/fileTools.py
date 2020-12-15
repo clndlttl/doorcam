@@ -1,4 +1,4 @@
-# this file must be copied into /usr/lib/python3
+# this file will be copied into /usr/lib/python3
 
 import subprocess
 import json
