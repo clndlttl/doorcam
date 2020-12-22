@@ -54,6 +54,7 @@ def connect():
     iwlist = open("iwlist.txt", "r")
     output = iwlist.read()
     iwlist.close()
+    os.remove("iwlist.txt")
 
     if cfg['ssid'] not in output:
         print('doorcam: ssid from .json is not visible')
