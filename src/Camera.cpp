@@ -1,8 +1,11 @@
+#include <thread>
+#include <chrono>
+
 #include <Camera.h>
 #include <Smoother.h>
 #include <pyfunc.h>
 
-Camera::Camera(const ptree& cfg) {
+Camera::Camera(const Config& cfg) {
   // setup camera
   do {
     std::cout << "attempt to open cam" << std::endl;
@@ -11,17 +14,17 @@ Camera::Camera(const ptree& cfg) {
   } while (!m_ptrCam->isOpened());
 
   // set image size
-  m_imgWidth = std::stoi( cfg.get("imgWidth", "320") );
-  m_imgHeight = std::stoi( cfg.get("imgHeight", "240") );
+  m_imgWidth = cfg.getImageWidth();
+  m_imgHeight = cfg.getImageHeight();
 
   m_ptrCam->set(cv::CAP_PROP_FRAME_WIDTH, m_imgWidth);
   m_ptrCam->set(cv::CAP_PROP_FRAME_HEIGHT, m_imgHeight);
 
   // choose an operating mode, default is server mode
-  m_mode = cfg.get("mode", "server");
+  m_mode = cfg.getMode();
 
   // frames per second
-  m_fps = std::stof( cfg.get("fps", "10.0"));
+  m_fps = cfg.getFPS();
 
   // frame period in milliseconds
   m_fT_ms = static_cast<int>( 1e3f / m_fps );

@@ -1,12 +1,10 @@
 #include <iostream>
 #include <string>
-#include <thread>
-#include <chrono>
 #include <vector>
-#include <ptree.hpp>
 #include <opencv2/opencv.hpp>
 #include <server.h>
 #include <SocketException.h>
+#include <Config.h>
 
 using boost::property_tree::ptree;
 
@@ -31,7 +29,7 @@ class Camera {
   void runAsMotionDetector();
 
  public:
-  Camera(const ptree& cfg);
+  Camera(const Config& cfg);
   ~Camera();
   void run();
 };

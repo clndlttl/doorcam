@@ -29,6 +29,7 @@ target_link_libraries(
   doorcam_server
   ${OpenCV_LIBS}
   "/usr/lib/libpython3"
+  pthread
 )
 
 install(TARGETS doorcam_server
