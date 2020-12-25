@@ -22,10 +22,10 @@ int main() {
   Config cfg("/media/doorcam_config/doorcam_config.json");
 
   // launch console
-  std::thread console_thread( &Console::launch, Console(&cfg) );
+  std::thread console_thread( &ServerConsole::listen, ServerConsole(&cfg) );
 
   // pass config to camera and run
-  Camera my_cam(cfg);
+  Camera my_cam(&cfg);
   my_cam.run();
 
   std::cout << "Camera loop exited" << std::endl;

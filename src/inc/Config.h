@@ -6,7 +6,7 @@
 
 class Config {
 
-  // read config file
+  bool quitting = false;
   boost::property_tree::ptree cfg;
   mutable std::mutex mtx;
 
@@ -36,5 +36,15 @@ class Config {
   float getFPS() const {
     std::lock_guard<std::mutex> lock(mtx);
     return std::stof( cfg.get("fps", "10.0") );
+  }
+
+  void quit() {
+    std::lock_guard<std::mutex> lock(mtx);
+    quitting = true;
+  }
+
+  bool isTimeToQuit() { 
+    std::lock_guard<std::mutex> lock(mtx);
+    return quitting; 
   }
 };

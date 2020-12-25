@@ -9,7 +9,7 @@
 using boost::property_tree::ptree;
 
 class Camera {
-
+  Config* cfg;
   static constexpr int M_CIRC_BUF_LEN = 5;
 
   cv::VideoCapture* m_ptrCam;
@@ -29,7 +29,7 @@ class Camera {
   void runAsMotionDetector();
 
  public:
-  Camera(const Config& cfg);
+  Camera(Config*);
   ~Camera();
   void run();
 };

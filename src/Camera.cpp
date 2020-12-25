@@ -5,7 +5,9 @@
 #include <Smoother.h>
 #include <pyfunc.h>
 
-Camera::Camera(const Config& cfg) {
+Camera::Camera(Config* _cfg) {
+  cfg = _cfg;
+
   // setup camera
   do {
     std::cout << "attempt to open cam" << std::endl;
@@ -14,17 +16,17 @@ Camera::Camera(const Config& cfg) {
   } while (!m_ptrCam->isOpened());
 
   // set image size
-  m_imgWidth = cfg.getImageWidth();
-  m_imgHeight = cfg.getImageHeight();
+  m_imgWidth = cfg->getImageWidth();
+  m_imgHeight = cfg->getImageHeight();
 
   m_ptrCam->set(cv::CAP_PROP_FRAME_WIDTH, m_imgWidth);
   m_ptrCam->set(cv::CAP_PROP_FRAME_HEIGHT, m_imgHeight);
 
   // choose an operating mode, default is server mode
-  m_mode = cfg.getMode();
+  m_mode = cfg->getMode();
 
   // frames per second
-  m_fps = cfg.getFPS();
+  m_fps = cfg->getFPS();
 
   // frame period in milliseconds
   m_fT_ms = static_cast<int>( 1e3f / m_fps );
@@ -57,14 +59,13 @@ void Camera::runAsServer() {
     // Create the socket
     ServerSocket server ( 30000 );
 
-    while ( true ) {
+    while ( !cfg->isTimeToQuit() ) {
 
-	  ServerSocket new_sock;
-	  server.accept(new_sock);
+      ServerSocket new_sock;
+      server.accept(new_sock);
 
-	  try {
-	    while (true) {
-
+      try {
+        while ( !cfg->isTimeToQuit() ) {
           cv::Mat frame, gray;
 
           *m_ptrCam >> frame;
@@ -72,12 +73,11 @@ void Camera::runAsServer() {
 
           new_sock << gray;
           std::this_thread::sleep_for(std::chrono::milliseconds(m_fT_ms));
-  
-	    }
-	  } catch ( SocketException& e ) {
+        }
+      } catch ( SocketException& e ) {
         std::cout << "client lost: " << e.description() << std::endl;
       }
-	}
+    }
   } catch ( SocketException& e ) {
     std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
   }

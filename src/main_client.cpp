@@ -4,16 +4,21 @@
 // main_client.cpp
 //
 
-#include <client.h>
-#include <SocketException.h>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <client.h>
+#include <SocketException.h>
+#include <Console.h>
 
 int main ( int argc, char** argv ) {
   if (argc < 2) {
     std::cout << "usage: doorcam_client <ip_addr>" << std::endl;
     return 0;
   }
+
+  // launch console thread
+  std::thread console_thread( &ClientConsole::connect, ClientConsole(argv[1]) );
 
   try {
     ClientSocket client_socket ( argv[1], 30000 );
@@ -24,17 +29,16 @@ int main ( int argc, char** argv ) {
     try {
       while (true) {
         client_socket >> gray;
-	    cv::imshow("door cam", gray);
-	    cv::waitKey(10);
-        // cv::imwrite("image.jpg", gray);
+        cv::imshow("door cam", gray);
+        cv::waitKey(10);
       }
     } catch ( SocketException& ) {}
 
-    // std::cout << "saved image.jpg!" << std::endl;
-
   } catch ( SocketException& e ) {
-    std::cout << "Exception was caught:" << e.description() << "\n";
+    std::cout << "Socket lost:" << e.description() << "\n";
   }
+  
+  console_thread.join();
 
   return 0;
 }
