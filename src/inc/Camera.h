@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <mutex>
+
 #include <opencv2/opencv.hpp>
 #include <server.h>
 #include <SocketException.h>
@@ -19,11 +21,14 @@ class Camera {
   float m_fps;
   int m_fT_ms;
 
+  mutable std::mutex mtx;
+
   std::vector<cv::Mat> m_frames;
   int m_framePtr;
 
-  void writeToCircBuf(const cv::Mat& img);
-  const cv::Mat& readFromCircBuf();
+  void writeToCircBuf();
+  const cv::Mat getOldestImage() const;
+  const cv::Mat getNewestImage() const;
 
   void runAsServer();
   void runAsMotionDetector();

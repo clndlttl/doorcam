@@ -22,9 +22,6 @@ Camera::Camera(Config* _cfg) {
   m_ptrCam->set(cv::CAP_PROP_FRAME_WIDTH, m_imgWidth);
   m_ptrCam->set(cv::CAP_PROP_FRAME_HEIGHT, m_imgHeight);
 
-  // choose an operating mode, default is server mode
-  m_mode = cfg->getMode();
-
   // frames per second
   m_fps = cfg->getFPS();
 
@@ -44,13 +41,32 @@ Camera::~Camera() {
 }
 
 void Camera::run() {
-  if ( !m_mode.compare("server") ) {
-    runAsServer();
-  } else if ( !m_mode.compare("motion") ) {
-    runAsMotionDetector();
+  void (Camera::*job)();
+  std::string mode = cfg->getMode();
+  if ( !mode.compare("server") ) {
+    job = &Camera::runAsServer;
+  } else if ( !mode.compare("motion") ) {
+    job = &Camera::runAsMotionDetector;
   }
+ 
+  std::thread worker_thread(job, this);
+
+  // camera acquistion loop: reads images at 50 FPS
+  while ( !cfg->isTimeToQuit() ) {
+    writeToCircBuf();
+    std::this_thread::sleep_for(std::chrono::milliseconds( 20 ));
+  }
+
+  worker_thread.join();
 }
 
+
+
+/*
+ *  Server mode
+ *  
+ *  Stream images to client
+ */
 void Camera::runAsServer() {
   std::cout << "Server Mode" << std::endl;
 
@@ -68,7 +84,7 @@ void Camera::runAsServer() {
         while ( !cfg->isTimeToQuit() ) {
           cv::Mat frame, gray;
 
-          *m_ptrCam >> frame;
+          frame = getNewestImage();
           cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
           new_sock << gray;
@@ -79,9 +95,11 @@ void Camera::runAsServer() {
       }
     }
   } catch ( SocketException& e ) {
-    std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
+    std::cout << e.description() << std::endl;
   }
 }
+
+
 
 /*
  *  Motion Detector mode
@@ -92,8 +110,7 @@ void Camera::runAsServer() {
 void Camera::runAsMotionDetector() {
   std::cout << "Motion Mode" << std::endl;
   
-  try {
-
+  while ( !cfg->isTimeToQuit() ) {
     // track the mean and variance of coords of pixel differences in time
 
     bool moving_obj = false;
@@ -104,13 +121,13 @@ void Camera::runAsMotionDetector() {
     
     cv::Mat previous(m_imgHeight, m_imgWidth, CV_32FC1, cv::Scalar(0));
     
-    while ( !moving_obj ) {
-      std::cout << "\tlooking for motion..." << std::endl;
+    std::cout << "looking for motion..." << std::endl;
+    
+    while ( !moving_obj && !cfg->isTimeToQuit() ) {
 
       cv::Mat frame, gray, grayf, diff, abs_of_diff;
 
-      *m_ptrCam >> frame;
-      writeToCircBuf(frame);
+      frame = getNewestImage();
       cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
       gray.convertTo(grayf, CV_32FC1);
@@ -139,18 +156,14 @@ void Camera::runAsMotionDetector() {
       std::this_thread::sleep_for(std::chrono::milliseconds(m_fT_ms));
     }
 
-    // unwrap the circular buffer here, prepend to video
-    for (int i = 0; i < M_CIRC_BUF_LEN; ++i) {
-      motionVid.write( readFromCircBuf() );
-    }
-
-    while ( moving_obj ) {
-      std::cout << "\trecording motion!" << std::endl;
+    std::cout << "\trecording..." << std::endl;
+    
+    while ( moving_obj && !cfg->isTimeToQuit() ) {
 
       cv::Mat frame, gray, grayf, diff, abs_of_diff;
 
       // append these frames to video
-      *m_ptrCam >> frame;
+      frame = getOldestImage();
       motionVid.write(frame);
       cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
@@ -176,26 +189,29 @@ void Camera::runAsMotionDetector() {
       } else {
         if (--motion_count == 0) moving_obj = false;
       }
-
+      
       std::this_thread::sleep_for(std::chrono::milliseconds(m_fT_ms));
     }
 
     motionVid.release();
     std::cout << "\twriting video" << std::endl;
     callPythonFunc("fileTools", "shareVideo");
-
-  } catch (const std::exception& e) {
-    std::cout << e.what() << std::endl;
-  } 
+  }
 }
 
-void Camera::writeToCircBuf(const cv::Mat& img) {
-  m_frames[m_framePtr] = img;
+void Camera::writeToCircBuf() {
+  std::lock_guard<std::mutex> lock(mtx);
+  *m_ptrCam >> m_frames[m_framePtr];
   m_framePtr = ++m_framePtr % M_CIRC_BUF_LEN;
 }
 
-const cv::Mat& Camera::readFromCircBuf() {
-  cv::Mat* oldest = &(m_frames[m_framePtr]);
-  m_framePtr = ++m_framePtr % M_CIRC_BUF_LEN;
-  return *oldest;
+const cv::Mat Camera::getOldestImage() const {
+  std::lock_guard<std::mutex> lock(mtx);
+  return m_frames[m_framePtr];
+}
+
+const cv::Mat Camera::getNewestImage() const {
+  std::lock_guard<std::mutex> lock(mtx);
+  int readIdx = ((m_framePtr - 1) < 0) ? M_CIRC_BUF_LEN - 1 : m_framePtr - 1;
+  return m_frames[readIdx];
 }
