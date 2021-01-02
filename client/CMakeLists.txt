@@ -5,6 +5,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/main_client.cpp
   ${CMAKE_SOURCE_DIR}/src/client.cpp
   ${CMAKE_SOURCE_DIR}/src/socket.cpp
+  ${CMAKE_SOURCE_DIR}/src/Config.cpp
 )
 
 find_package(OpenCV REQUIRED COMPONENTS

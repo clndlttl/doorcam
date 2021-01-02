@@ -41,23 +41,26 @@ Camera::~Camera() {
 }
 
 void Camera::run() {
-  void (Camera::*job)();
-  std::string mode = cfg->getMode();
-  if ( !mode.compare("server") ) {
-    job = &Camera::runAsServer;
-  } else if ( !mode.compare("motion") ) {
-    job = &Camera::runAsMotionDetector;
-  }
- 
-  std::thread worker_thread(job, this);
-
-  // camera acquistion loop: reads images at 50 FPS
   while ( !cfg->isTimeToQuit() ) {
-    writeToCircBuf();
-    std::this_thread::sleep_for(std::chrono::milliseconds( 20 ));
-  }
+    void (Camera::*job)();
+    int mode = cfg->getMode();
+    
+    if ( mode == ::SERVER ) {
+      job = &Camera::runAsServer;
+    } else if ( mode == ::MOTION ) {
+      job = &Camera::runAsMotionDetector;
+    }
+ 
+    std::thread worker_thread(job, this);
 
-  worker_thread.join();
+    // camera acquistion loop: reads images at 50 FPS
+    while ( cfg->getMode() == mode ) {
+      writeToCircBuf();
+      std::this_thread::sleep_for(std::chrono::milliseconds( 20 ));
+    }
+
+    worker_thread.join();
+  }
 }
 
 
@@ -75,13 +78,13 @@ void Camera::runAsServer() {
     // Create the socket
     ServerSocket server ( 30000 );
 
-    while ( !cfg->isTimeToQuit() ) {
+    while ( cfg->getMode() == ::SERVER ) {
 
       ServerSocket new_sock;
       server.accept(new_sock);
 
       try {
-        while ( !cfg->isTimeToQuit() ) {
+        while ( cfg->getMode() == ::SERVER ) {
           cv::Mat frame, gray;
 
           frame = getNewestImage();
@@ -110,7 +113,7 @@ void Camera::runAsServer() {
 void Camera::runAsMotionDetector() {
   std::cout << "Motion Mode" << std::endl;
   
-  while ( !cfg->isTimeToQuit() ) {
+  while ( cfg->getMode() == ::MOTION ) {
     // track the mean and variance of coords of pixel differences in time
 
     bool moving_obj = false;
@@ -123,7 +126,7 @@ void Camera::runAsMotionDetector() {
     
     std::cout << "looking for motion..." << std::endl;
     
-    while ( !moving_obj && !cfg->isTimeToQuit() ) {
+    while ( !moving_obj && (cfg->getMode() == ::MOTION) ) {
 
       cv::Mat frame, gray, grayf, diff, abs_of_diff;
 
@@ -158,7 +161,7 @@ void Camera::runAsMotionDetector() {
 
     std::cout << "\trecording..." << std::endl;
     
-    while ( moving_obj && !cfg->isTimeToQuit() ) {
+    while ( moving_obj && (cfg->getMode() == ::MOTION) ) {
 
       cv::Mat frame, gray, grayf, diff, abs_of_diff;
 
@@ -194,8 +197,10 @@ void Camera::runAsMotionDetector() {
     }
 
     motionVid.release();
-    std::cout << "\twriting video" << std::endl;
-    callPythonFunc("fileTools", "shareVideo");
+    if ( cfg->getMode() == ::MOTION ) {
+      std::cout << "\twriting video" << std::endl;
+      callPythonFunc("fileTools", "shareVideo");
+    }
   }
 }
 

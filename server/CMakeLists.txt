@@ -7,6 +7,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/socket.cpp
   ${CMAKE_SOURCE_DIR}/src/pyfunc.cpp
   ${CMAKE_SOURCE_DIR}/src/Camera.cpp
+  ${CMAKE_SOURCE_DIR}/src/Config.cpp
 )
 
 find_package(OpenCV REQUIRED COMPONENTS

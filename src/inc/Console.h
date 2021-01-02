@@ -4,30 +4,34 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <unordered_map>
+
 #include <Config.h>
 #include <server.h>
 #include <client.h>
 #include <SocketException.h>
 
-class Console {
+
+class ServerConsole {
+
   Config* cfg = nullptr;
+  typedef void(ServerConsole::*fptr)(void);
+  std::unordered_map<std::string, fptr> funcMap;
+
+  void quit() { cfg->quit(); }
+  void setServerMode() { cfg->setMode(::SERVER); }
+  void setMotionMode() { cfg->setMode(::MOTION); }
+
  public:
-  Console() {}
-  Console(Config* _cfg) :
-          cfg(_cfg) {}
-  void quit() {
-    cfg->quit();
+
+  ServerConsole(Config* _cfg) : cfg(_cfg) {
+    funcMap["quit"]   = &ServerConsole::quit;
+    funcMap["server"] = &ServerConsole::setServerMode;
+    funcMap["motion"] = &ServerConsole::setMotionMode;
   }
-  virtual ~Console() = default;
-};
-
-
-class ServerConsole : public Console {
- 
- public:
-  ServerConsole(Config* _cfg) : Console(_cfg) {}
+  
   ~ServerConsole() {}
-
+  
   void listen() {
     // open a server socket that waits for a client
     try {
@@ -35,51 +39,59 @@ class ServerConsole : public Console {
       ServerSocket server ( 30001 );
 
       try {
-        std::cout << "waiting for client" << std::endl;
         ServerSocket new_sock;
         server.accept(new_sock);
 
-        std::string command("");
-        while (command.compare("quit")) {
+        while ( !cfg->isTimeToQuit() ) {
+          std::string command;
           new_sock >> command;
-          std::cout << "ServerSocket recv: " << command << std::endl;
-          std::this_thread::sleep_for( std::chrono::milliseconds(10) );
+
+          if (funcMap.find(command) != funcMap.end()) {
+            (this->*funcMap[command])();
+	  } else {
+            std::cout << "unknown command: " << command << std::endl;
+	  }
         }
-        
-        quit();
 
       }
       catch ( SocketException& e ) {
-        std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
+        std::cout << e.description() << std::endl;
       }
     } catch ( SocketException& e ) {
-      std::cout << "Exception was caught: " << e.description() << "\nExiting.\n";
+      std::cout << e.description() << std::endl;
     }
   }
 };
 
 
-class ClientConsole : public Console {
+class ClientConsole {
   std::string ipaddr;
+  std::atomic<int>* pMode = nullptr;
 
  public:
-  ClientConsole(const char* ip) : Console(), ipaddr(ip) {}
+  ClientConsole(const char* ip, std::atomic<int>* mode) : ipaddr(ip), pMode(mode) {}
   ~ClientConsole() {}
+
   void connect() {
     try {
       ClientSocket client_socket ( ipaddr.c_str(), 30001 );
 
       try {
-        while (true) {
+        while (*pMode != ::QUIT) {
           std::string input;
 	  std::cin >> input;
+
+          if (::modeCode.find(input) != ::modeCode.end() ) {
+            *pMode = ::modeCode[input];
+	  }
+
 	  client_socket << input;
         }
       } catch ( SocketException& e ) {
-        std::cout << "Socket lost:" << e.description() << "\n";
+        std::cout << e.description() << std::endl;
       }
     } catch ( SocketException& e ) {
-      std::cout << "Socket lost:" << e.description() << "\n";
+      std::cout << e.description() << std::endl;
     }
   }
 };

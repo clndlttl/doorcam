@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <atomic>
+
 #include <client.h>
 #include <SocketException.h>
 #include <Console.h>
@@ -17,8 +19,10 @@ int main ( int argc, char** argv ) {
     return 0;
   }
 
+  std::atomic<int> mode(::SERVER); 
+
   // launch console thread
-  std::thread console_thread( &ClientConsole::connect, ClientConsole(argv[1]) );
+  std::thread console_thread( &ClientConsole::connect, ClientConsole(argv[1], &mode ));
 
   try {
     ClientSocket client_socket ( argv[1], 30000 );
@@ -27,15 +31,16 @@ int main ( int argc, char** argv ) {
     cv::Mat gray(240, 320, CV_8UC1, cv::Scalar(0)); 
 
     try {
-      while (true) {
+      while (mode == ::SERVER) {
         client_socket >> gray;
         cv::imshow("door cam", gray);
-        cv::waitKey(10);
+        cv::waitKey(1);
       }
-    } catch ( SocketException& ) {}
-
+    } catch ( SocketException& e ) {
+      std::cout << e.description() << std::endl;
+    }
   } catch ( SocketException& e ) {
-    std::cout << "Socket lost:" << e.description() << "\n";
+    std::cout << e.description() << std::endl;
   }
   
   console_thread.join();
