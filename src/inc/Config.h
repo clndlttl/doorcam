@@ -7,16 +7,16 @@
 
 typedef enum {
     QUIT = 0,
+    CLOSE,
     SERVER,
     MOTION,
-    TEST
 } Mode;
 
 static std::unordered_map<std::string, Mode> modeCode = {
   {"quit", QUIT},
+  {"close", CLOSE},
   {"server", SERVER},
   {"motion", MOTION},
-  {"test", TEST}
 };
 
 class Config {

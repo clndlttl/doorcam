@@ -139,18 +139,18 @@ void Camera::runAsMotionDetector() {
 
       abs_of_diff = cv::abs(diff);
 
-      float numchanged = 0.f;
+      int numchanged = 0;
 
       for (int r = 0; r < m_imgHeight; ++r) {
         for (int c = 0; c < m_imgWidth; ++c) {
-          if (abs_of_diff.at<float>(r, c) > 10.f) {
-            numchanged += 1.f;
+          if (abs_of_diff.at<float>(r, c) > 20.f) {
+            numchanged += 1;
           }
         }
       }
 
       // if at least so many pixels changed by at least so much
-      if (numchanged > 20.f) {
+      if (numchanged > 20) {
         if (++motion_count == M_CIRC_BUF_LEN) moving_obj = true;
       } else {
         motion_count = --motion_count < 0 ? 0 : motion_count;
@@ -176,18 +176,20 @@ void Camera::runAsMotionDetector() {
 
       abs_of_diff = cv::abs(diff);
 
-      float numchanged = 0.f;
+      int numchanged = 0;
 
       for (int r = 0; r < m_imgHeight; ++r) {
         for (int c = 0; c < m_imgWidth; ++c) {
-          if (abs_of_diff.at<float>(r, c) > 10.f) {
-            numchanged += 1.f;
+          if (abs_of_diff.at<float>(r, c) > 20.f) {
+            numchanged += 1;
           }
         }
       }
 
+      std::cout << "numchanged = " << numchanged << std::endl;
+
       // if at least so many pixels changed by at least so much
-      if (numchanged > 20.f) {
+      if (numchanged > 20) {
         motion_count = (++motion_count > M_CIRC_BUF_LEN) ? M_CIRC_BUF_LEN : motion_count;
       } else {
         if (--motion_count == 0) moving_obj = false;

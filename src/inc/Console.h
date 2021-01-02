@@ -35,27 +35,27 @@ class ServerConsole {
   void listen() {
     // open a server socket that waits for a client
     try {
-      // Create the socket
-      ServerSocket server ( 30001 );
+      while ( !cfg->isTimeToQuit() ) {
+        // Create the socket
+        ServerSocket server ( 30001 );
 
-      try {
-        ServerSocket new_sock;
-        server.accept(new_sock);
+        try {
+          ServerSocket new_sock;
+          server.accept(new_sock);
 
-        while ( !cfg->isTimeToQuit() ) {
-          std::string command;
-          new_sock >> command;
+          while ( !cfg->isTimeToQuit() ) {
+            std::string command;
+            new_sock >> command;
 
-          if (funcMap.find(command) != funcMap.end()) {
-            (this->*funcMap[command])();
-	  } else {
-            std::cout << "unknown command: " << command << std::endl;
-	  }
+            if (funcMap.find(command) != funcMap.end()) {
+              (this->*funcMap[command])();
+	    } else {
+              std::cout << "unknown command: " << command << std::endl;
+	    }
+          }
+        } catch ( SocketException& e ) {
+          std::cout << e.description() << std::endl;
         }
-
-      }
-      catch ( SocketException& e ) {
-        std::cout << e.description() << std::endl;
       }
     } catch ( SocketException& e ) {
       std::cout << e.description() << std::endl;
@@ -77,7 +77,7 @@ class ClientConsole {
       ClientSocket client_socket ( ipaddr.c_str(), 30001 );
 
       try {
-        while (*pMode != ::QUIT) {
+        while (*pMode != ::CLOSE) {
           std::string input;
 	  std::cin >> input;
 
