@@ -57,7 +57,7 @@ Install procedure:
    b. create a symbolic link /usr/lib/libpython3  -> path-to-libpython3.Xm.so
 5. make sure sudo can run python files
    a. my require adding the following to /etc/sudoers:
-      Default env-keep += "PYTHONPATH"
+      Defaults env-keep += "PYTHONPATH"
       with PYTHONPATH=/usr/lib/python3
 6. cd to root of this repo
    a. cmake .

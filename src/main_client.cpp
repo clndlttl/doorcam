@@ -25,9 +25,9 @@ int main ( int argc, char** argv ) {
   // launch console thread
   std::thread console_thread( &ClientConsole::connect, ClientConsole(argv[1], &mode ));
 
-  while ((mode != ::CLOSE) && (mode != ::QUIT)) {
-    if (mode == ::SERVER) {
-      try {
+  try {
+    while ((mode != ::CLOSE) && (mode != ::QUIT)) {
+      if (mode == ::SERVER) {
         ClientSocket client_socket ( argv[1], 30000 );
 
         cv::namedWindow("door cam", 1);
@@ -42,17 +42,17 @@ int main ( int argc, char** argv ) {
         } catch ( SocketException& e ) {
           std::cout << e.description() << std::endl;
         }
-      } catch ( SocketException& e ) {
-        std::cout << e.description() << std::endl;
+      } else if (mode == ::MOTION) {
+        std::cout << "Camera in motion detection mode" << std::endl;
+        while (mode == ::MOTION) {
+          std::this_thread::sleep_for( std::chrono::seconds(1) );
+        }
       }
-    } else if (mode == ::MOTION) {
-      std::cout << "Camera in motion detection mode" << std::endl;
-      while (mode == ::MOTION) {
-        std::this_thread::sleep_for( std::chrono::seconds(1) );
-      }
-    }
+    } 
+  } catch ( SocketException& e ) {
+    std::cout << e.description() << std::endl;
   }
-  
+
   console_thread.join();
 
   return 0;
