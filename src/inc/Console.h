@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <unordered_map>
+#include <atomic>
 
 #include <Config.h>
 #include <server.h>
