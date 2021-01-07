@@ -20,7 +20,10 @@
 
 const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 5;
-const int MAXRECV = 500;
+const int MAXRECV = 50;
+
+// pad zeros to string for expected length
+std::string pad(const std::string& s);
 
 class Socket {
   int m_sock;
@@ -43,7 +46,7 @@ class Socket {
 
   // Data Transimission
   bool send(const std::string) const;
-  bool send(const cv::Mat&) const;
+  bool send(const std::string& header, const cv::Mat&) const;
   int recv(std::string&) const;
   int recv(cv::Mat&) const;
 

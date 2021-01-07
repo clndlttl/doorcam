@@ -10,6 +10,16 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+std::string pad(const std::string& s) {
+  int comp = MAXRECV - s.size();
+  std::string zeros(comp,0);
+  return s + zeros;
+}
+
+
 Socket::Socket() :
   m_sock ( -1 ) {
   memset(&m_addr, 0, sizeof ( m_addr ) );
@@ -93,8 +103,12 @@ bool Socket::send(const std::string s) const {
 }
 
 
-bool Socket::send(const cv::Mat& img) const {
-  int status = ::send(m_sock, img.data, img.rows * img.cols, MSG_NOSIGNAL);
+bool Socket::send(const std::string& header, const cv::Mat& img) const {
+  // std::cout << img.cols << "x" << img.rows << std::endl;
+  int status = ::send(m_sock, header.c_str(), header.size(), MSG_NOSIGNAL);
+  if ( status == -1 ) return false;
+
+  status = ::send(m_sock, img.data, img.rows * img.cols, MSG_NOSIGNAL);
   if ( status == -1 ) {
     return false;
   } else {
@@ -104,13 +118,13 @@ bool Socket::send(const cv::Mat& img) const {
 
 
 int Socket::recv(std::string& s) const {
-  char buf[MAXRECV + 1];
+  static char buf[MAXRECV + 1];
 
   s = "";
 
   memset(buf, 0, MAXRECV + 1);
 
-  int status = ::recv(m_sock, buf, MAXRECV, 0);
+  int status = ::recv(m_sock, buf, MAXRECV, MSG_WAITALL);
 
   if (status == -1) {
     std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";
@@ -123,9 +137,26 @@ int Socket::recv(std::string& s) const {
   }
 }
 
-int Socket::recv(cv::Mat& s) const {
+int Socket::recv(cv::Mat& img) const {
 
-  int status = ::recv(m_sock, s.data, s.rows * s.cols, MSG_WAITALL);
+  static char buf[MAXRECV + 1];
+  memset(buf, 0, MAXRECV + 1);
+  int status = ::recv(m_sock, buf, MAXRECV, MSG_WAITALL);
+  
+  // std::cout << buf << std::endl;
+  std::stringstream ss;
+  ss << std::string(buf);
+  boost::property_tree::ptree header;
+  try {
+    read_json(ss, header);
+    int width = header.get<int>("imgWidth");
+    int height = header.get<int>("imgHeight");
+
+    if (width != img.cols || height != img.rows)
+      img = cv::Mat(height, width, CV_8UC1);
+  } catch(...) {}
+
+  status = ::recv(m_sock, img.data, img.rows * img.cols, MSG_WAITALL);
 
   if (status == -1) {
     std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";

@@ -12,9 +12,10 @@ using boost::property_tree::ptree;
 
 class Camera {
   Config* cfg;
+  ptree imgHeader;
   static constexpr int M_CIRC_BUF_LEN = 5;
 
-  cv::VideoCapture* m_ptrCam;
+  cv::VideoCapture* m_ptrCam = nullptr;
   int m_imgWidth;
   int m_imgHeight;
   std::string m_mode;
@@ -32,6 +33,11 @@ class Camera {
 
   void runAsServer();
   void runAsMotionDetector();
+
+  void updateAll(ServerSocket*);
+  void init();
+
+  bool accessCamera();
 
  public:
   Camera(Config*);

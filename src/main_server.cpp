@@ -14,10 +14,11 @@
 #include <Camera.h>
 #include <Console.h>
 
-int main() {
+int main(int argc, char** argv) {
 
-  // initialize via python call: filename, function
-  callPythonFunc("doorcam_init", "configAndConnect");
+  if (argc == 1)
+    // initialize via python call: filename, function
+    callPythonFunc("doorcam_init", "configAndConnect");
 
   Config cfg("/media/doorcam_config/doorcam_config.json");
 

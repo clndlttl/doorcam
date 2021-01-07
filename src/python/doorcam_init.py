@@ -38,6 +38,8 @@ def copyfile():
         mountDisk(device_name)
         if configIsPresent():
             readConfig()
+            return True
+    return CFG in os.listdir(SAVE_CFG)
 
 def connect():
     # read in the creds from /media/doorcam_config/doorcam_config.json
@@ -45,6 +47,8 @@ def connect():
     text = file.read()
     cfg = json.loads(text)
 
+
+    '''
     # make sure that network is visible to wlan0
     iwlist = open("iwlist.txt", "w+")
     subprocess.Popen(["iwlist", "wlan0", "scan"], stdout=iwlist)
@@ -56,9 +60,12 @@ def connect():
     iwlist.close()
     os.remove("iwlist.txt")
 
+    print(cfg['ssid'])
+
     if cfg['ssid'] not in output:
         print('doorcam: ssid from .json is not visible')
         sys.exit(0)
+    '''
 
     # check to see if creds are already added to wpa_supplicant.conf
     wpa = open("/etc/wpa_supplicant/wpa_supplicant.conf", "r")
@@ -82,8 +89,8 @@ def connect():
             json.dump(cfg, outfile)
 
 def configAndConnect():
-    copyfile()
-    connect()
+    if copyfile():
+        connect()
 
 if __name__ == '__main__':
     configAndConnect()

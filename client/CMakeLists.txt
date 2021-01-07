@@ -15,7 +15,6 @@ target_include_directories(
   doorcam_client PUBLIC
   ${CMAKE_SOURCE_DIR}/src/inc
   ${OpenCV_INCLUDE_DIRS}
-  /usr/include/boost/property_tree
 )
 
 target_link_libraries(

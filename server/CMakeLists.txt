@@ -8,6 +8,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/pyfunc.cpp
   ${CMAKE_SOURCE_DIR}/src/Camera.cpp
   ${CMAKE_SOURCE_DIR}/src/Config.cpp
+  ${CMAKE_SOURCE_DIR}/src/Console.cpp
 )
 
 find_package(OpenCV REQUIRED COMPONENTS
@@ -20,7 +21,6 @@ target_include_directories(
   ${CMAKE_SOURCE_DIR}/src/inc
   ${OpenCV_INCLUDE_DIRS}
   /usr/include/python3
-  /usr/include/boost/property_tree
 )
 
 # ATTN: /usr/lib/libpython3 is a symbolic link that you

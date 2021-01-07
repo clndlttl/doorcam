@@ -25,13 +25,15 @@ int main ( int argc, char** argv ) {
   // launch console thread
   std::thread console_thread( &ClientConsole::connect, ClientConsole(argv[1], &mode ));
 
+  // display live stream
   try {
     while ((mode != ::CLOSE) && (mode != ::QUIT)) {
       if (mode == ::SERVER) {
         ClientSocket client_socket ( argv[1], 30000 );
 
         cv::namedWindow("door cam", 1);
-        cv::Mat gray(240, 320, CV_8UC1, cv::Scalar(0)); 
+        // cv::Mat gray(240, 320, CV_8UC1, cv::Scalar(0)); 
+        cv::Mat gray;
 
         try {
           while (mode == ::SERVER) {
@@ -40,7 +42,7 @@ int main ( int argc, char** argv ) {
             cv::waitKey(1);
           }
         } catch ( SocketException& e ) {
-          std::cout << e.description() << std::endl;
+          std::cout << "imshow loop: " << e.description() << std::endl;
         }
       } else if (mode == ::MOTION) {
         std::cout << "Camera in motion detection mode" << std::endl;
@@ -50,7 +52,7 @@ int main ( int argc, char** argv ) {
       }
     } 
   } catch ( SocketException& e ) {
-    std::cout << e.description() << std::endl;
+    std::cout << "imshow: " << e.description() << std::endl;
   }
 
   console_thread.join();

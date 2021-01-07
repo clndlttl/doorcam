@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <thread>
 #include <chrono>
 #include <unordered_map>
@@ -13,23 +14,21 @@
 
 
 class ServerConsole {
-
   Config* cfg = nullptr;
-  typedef void(ServerConsole::*fptr)(void);
+  using Args = const std::vector<std::string>&;
+  using fptr = void(ServerConsole::*)(Args);
   std::unordered_map<std::string, fptr> funcMap;
 
-  void quit() { cfg->quit(); }
-  void setServerMode() { cfg->setMode(::SERVER); }
-  void setMotionMode() { cfg->setMode(::MOTION); }
+  void quit(Args a);
+  void setServerMode(Args a);
+  void setMotionMode(Args a);
+  void setResolution(Args a);
+
+  void handle(const std::string& raw);
 
  public:
 
-  ServerConsole(Config* _cfg) : cfg(_cfg) {
-    funcMap["quit"]   = &ServerConsole::quit;
-    funcMap["server"] = &ServerConsole::setServerMode;
-    funcMap["motion"] = &ServerConsole::setMotionMode;
-  }
-  
+  ServerConsole(Config* _cfg);
   ~ServerConsole() {}
   
   void listen() {
@@ -44,14 +43,9 @@ class ServerConsole {
           server.accept(new_sock);
 
           while ( !cfg->isTimeToQuit() ) {
-            std::string command;
-            new_sock >> command;
-
-            if (funcMap.find(command) != funcMap.end()) {
-              (this->*funcMap[command])();
-	    } else {
-              std::cout << "unknown command: " << command << std::endl;
-	    }
+            std::string input;
+            new_sock >> input;
+            handle(input); 
           }
         } catch ( SocketException& e ) {
           std::cout << e.description() << std::endl;
@@ -85,10 +79,15 @@ class ClientConsole {
             *pMode = ::modeCode[input];
 	  }
 
-	  client_socket << input;
+	  // in src/inc/socket.h, see MAXRECV
+	  // server socket is MSG_WAITALL, expects MAXRECV bytes
+	  if (input.size() < MAXRECV)
+	    client_socket << pad(input);
+	  else
+            std::cout << "too many characters!" << std::endl;
         }
       } catch ( SocketException& e ) {
-        std::cout << e.description() << std::endl;
+        std::cout << "console loop: " << e.description() << std::endl;
       }
     } catch ( SocketException& e ) {
       std::cout << e.description() << std::endl;

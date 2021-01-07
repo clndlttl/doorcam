@@ -41,7 +41,8 @@ const ServerSocket& ServerSocket::operator << (const std::string& s) const {
 
 
 const ServerSocket& ServerSocket::operator << (const cv::Mat& img) const {
-  if ( ! Socket::send ( img ) ) {
+
+  if ( ! Socket::send ( m_header, img ) ) {
     throw SocketException ("Could not write to socket.");
   }
 
@@ -57,8 +58,19 @@ const ServerSocket& ServerSocket::operator >> (std::string& s) const {
   return *this;
 }
 
+
 void ServerSocket::accept(ServerSocket& sock) {
   if ( ! Socket::accept(sock) ) {
     throw SocketException ("Could not accept socket.");
   }
+}
+
+
+void ServerSocket::updateHeader(const boost::property_tree::ptree& header) {
+  std::stringstream ss;
+  write_json(ss, header, false);
+  // client expects header to be a certain size
+  std::string s = ss.str();
+  if (s.size() < MAXRECV) m_header = pad(s);
+  else std::cout << "header too big!" << std::endl;
 }
