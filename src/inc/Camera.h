@@ -11,11 +11,11 @@
 using boost::property_tree::ptree;
 
 class Camera {
-  Config* cfg;
+  std::shared_ptr<Config> cfg;
   ptree imgHeader;
   static constexpr int M_CIRC_BUF_LEN = 5;
 
-  cv::VideoCapture* m_ptrCam = nullptr;
+  std::unique_ptr<cv::VideoCapture> m_ptrCam;
   int m_imgWidth;
   int m_imgHeight;
   std::string m_mode;
@@ -39,8 +39,15 @@ class Camera {
 
   bool accessCamera();
 
+  // private cstr (singleton)
+  Camera() = default;
+
  public:
-  Camera(Config*);
-  ~Camera();
+  static Camera& getInstance() {
+    static Camera cam;
+    return cam;
+  }
+  void configure(std::shared_ptr<Config>);
   void run();
+  ~Camera();
 };

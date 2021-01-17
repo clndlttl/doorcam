@@ -15,7 +15,7 @@
 
 
 class ServerConsole {
-  Config* cfg = nullptr;
+  std::shared_ptr<Config> cfg;
   using Args = const std::vector<std::string>&;
   using fptr = void(ServerConsole::*)(Args);
   std::unordered_map<std::string, fptr> funcMap;
@@ -29,7 +29,7 @@ class ServerConsole {
 
  public:
 
-  ServerConsole(Config* _cfg);
+  ServerConsole(std::shared_ptr<Config> _cfg);
   ~ServerConsole() {}
   
   void listen() {

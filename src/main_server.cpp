@@ -15,13 +15,14 @@
 
 int main(int argc, char** argv) {
 
-  Config cfg("/media/doorcam_config.json");
+  auto cfg = std::make_shared<Config>("/media/doorcam_config.json");
 
   // launch console
-  std::thread console_thread( &ServerConsole::listen, ServerConsole(&cfg) );
+  std::thread console_thread( &ServerConsole::listen, ServerConsole(cfg) );
 
   // pass config to camera and run
-  Camera my_cam(&cfg);
+  Camera& my_cam = Camera::getInstance();
+  my_cam.configure(cfg);
   my_cam.run();
 
   std::cout << "Camera loop exited" << std::endl;

@@ -5,7 +5,7 @@
 #include <Smoother.h>
 
 
-Camera::Camera(Config* _cfg) {
+void Camera::configure(std::shared_ptr<Config> _cfg) {
   cfg = _cfg;
 
   init();
@@ -29,7 +29,7 @@ bool Camera::accessCamera() {
   
   for (int i = 0; i < 10; ++i) {
     std::cout << "attempt to open cam" << std::endl;
-    m_ptrCam = new cv::VideoCapture(0);
+    m_ptrCam = std::make_unique<cv::VideoCapture>(0);
     if (!m_ptrCam->isOpened())
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     else

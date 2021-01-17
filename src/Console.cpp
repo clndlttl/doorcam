@@ -1,7 +1,7 @@
 #include <Console.h>
 #include <boost/algorithm/string.hpp>
 
-ServerConsole::ServerConsole(Config* _cfg) : cfg(_cfg) {
+ServerConsole::ServerConsole(std::shared_ptr<Config> _cfg) : cfg(_cfg) {
   funcMap["quit"]   = &ServerConsole::quit;
   funcMap["server"] = &ServerConsole::setServerMode;
   funcMap["motion"] = &ServerConsole::setMotionMode;
