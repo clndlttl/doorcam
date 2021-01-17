@@ -8,7 +8,7 @@ import os
 
 CFG = 'doorcam_config.json'
 MNT = '/media/doorcam_mount'
-SAVE_CFG = '/media/doorcam_config'
+SAVE_CFG = '/media'
 
 def inferDiskname(path):
     disk = ''
@@ -42,11 +42,10 @@ def copyfile():
     return CFG in os.listdir(SAVE_CFG)
 
 def connect():
-    # read in the creds from /media/doorcam_config/doorcam_config.json
-    file = open("/media/doorcam_config/doorcam_config.json", "r")
+    # read in the creds from /media/doorcam_config.json
+    file = open("/media/doorcam_config.json", "r")
     text = file.read()
     cfg = json.loads(text)
-
 
     '''
     # make sure that network is visible to wlan0

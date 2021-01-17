@@ -8,7 +8,6 @@
 #include <string>
 #include <thread>
 #include <chrono>
-#include <pyfunc.h>
 
 #include <Config.h>
 #include <Camera.h>
@@ -16,11 +15,7 @@
 
 int main(int argc, char** argv) {
 
-  if (argc == 1)
-    // initialize via python call: filename, function
-    callPythonFunc("doorcam_init", "configAndConnect");
-
-  Config cfg("/media/doorcam_config/doorcam_config.json");
+  Config cfg("/media/doorcam_config.json");
 
   // launch console
   std::thread console_thread( &ServerConsole::listen, ServerConsole(&cfg) );

@@ -3,7 +3,6 @@
 
 #include <Camera.h>
 #include <Smoother.h>
-#include <pyfunc.h>
 
 
 Camera::Camera(Config* _cfg) {
@@ -271,8 +270,7 @@ void Camera::runAsMotionDetector() {
 
     motionVid.release();
     if ( cfg->getMode() == ::MOTION ) {
-      std::cout << "\twriting video" << std::endl;
-      callPythonFunc("fileTools", "shareVideo");
+      std::cout << "\ttodo: rename video and store away" << std::endl;
     }
   }
 }
