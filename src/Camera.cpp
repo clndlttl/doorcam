@@ -3,7 +3,7 @@
 
 #include <Camera.h>
 #include <Smoother.h>
-
+#include <timestamp.h>
 
 void Camera::configure(std::shared_ptr<Config> _cfg) {
   cfg = _cfg;
@@ -177,7 +177,7 @@ void Camera::runAsServer() {
 /*
  *  Motion Detector mode
  *  
- *  Take an image once every 5 seconds, compare to previous image
+ *  Take an image once every second, compare to previous image
  *  If the delta exceeds a threshold, begin video capture and save
  */
 void Camera::runAsMotionDetector() {
@@ -189,8 +189,11 @@ void Camera::runAsMotionDetector() {
     bool moving_obj = false;
     int motion_count = 0;
 
-    cv::VideoWriter motionVid("motionCapture.avi", cv::VideoWriter::fourcc('M','J','P','G'),
-                              m_fps, cv::Size(m_imgWidth, m_imgHeight), true);
+    std::string vidname("/share/motion_");
+    vidname += get_timestamp();
+    vidname += ".avi";
+
+    cv::VideoWriter motionVid;
     
     cv::Mat previous(m_imgHeight, m_imgWidth, CV_32FC1, cv::Scalar(0));
     
@@ -226,12 +229,15 @@ void Camera::runAsMotionDetector() {
         motion_count = --motion_count < 0 ? 0 : motion_count;
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(m_fT_ms));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    std::cout << "\trecording..." << std::endl;
-    
     while ( moving_obj && (cfg->getMode() == ::MOTION) ) {
+      
+      if (!motionVid.isOpened()) {
+        motionVid = cv::VideoWriter(vidname, cv::VideoWriter::fourcc('M','J','P','G'),
+                                    m_fps, cv::Size(m_imgWidth, m_imgHeight), true);
+      }
 
       cv::Mat frame, gray, grayf, diff, abs_of_diff;
 
@@ -269,8 +275,5 @@ void Camera::runAsMotionDetector() {
     }
 
     motionVid.release();
-    if ( cfg->getMode() == ::MOTION ) {
-      std::cout << "\ttodo: rename video and store away" << std::endl;
-    }
   }
 }

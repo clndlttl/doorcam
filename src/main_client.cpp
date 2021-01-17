@@ -32,7 +32,6 @@ int main ( int argc, char** argv ) {
         ClientSocket client_socket ( argv[1], 30000 );
 
         cv::namedWindow("door cam", 1);
-        // cv::Mat gray(240, 320, CV_8UC1, cv::Scalar(0)); 
         cv::Mat gray;
 
         try {
@@ -49,6 +48,8 @@ int main ( int argc, char** argv ) {
         while (mode == ::MOTION) {
           std::this_thread::sleep_for( std::chrono::seconds(1) );
         }
+	// wait for server to exit motion mode
+        std::this_thread::sleep_for( std::chrono::seconds(2) );
       }
     } 
   } catch ( SocketException& e ) {
