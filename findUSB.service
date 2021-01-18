@@ -1,0 +1,12 @@
+[Unit]
+Description=find USB drive
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/lib/python3/doorcam_init.py
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target
+
